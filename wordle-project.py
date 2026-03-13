@@ -18,8 +18,6 @@ WORDS = [
     "fresh", "grill", "honey", "index", "jewel",
 ]
 
-ALL_LETTERS = set("abcdefghijklmnopqrstuvwxyz")
-
 MAX_GUESSES = 6
 WORD_LENGTH = 5 
 
@@ -99,9 +97,18 @@ while(True):
             print("\n")
             if fb.count('🟩') == 5:
                 print(f"You guessed correctly in your {guess-1} attempt")
+                stats_dict["guess-distribution"][guess-1] += 1
+                stats_dict["won"] += 1
+                stats_dict["streak"] += 1
                 break  
         else:
-            print("You lost")   
+            stats_dict["streak"] = 0
+            print("You lost") 
+             
+        stats_dict["played"] += 1
+        
+        if(stats_dict["streak"] > stats_dict["max-streak"]):
+            stats_dict["max-streak"] = stats_dict["streak"]
                  
     # Showing Stats
     elif(menu == 2):
@@ -109,9 +116,13 @@ while(True):
         print(" "+"-"*49)
         for key, value in stats_dict.items():
             if key != "guess-distribution":
-                print(f"| {key:<22} | {str(value):>22} |")      
+                print(f"| {key:<22}{str(value):>22} |")   
+            else:
+                print(f"| Your guess distribution is as follows:"+" "*7+"|")
+                for key, value in stats_dict["guess-distribution"].items():
+                    print(f"| {key:<22}{str(value):>22} |")   
         print(" "+"-"*49)
-    
+
     # Game Instructions
     elif(menu == 3):
         print("="*50)
@@ -123,4 +134,3 @@ while(True):
         break
     else:
         print("😑 Enter a valid option")
-    
