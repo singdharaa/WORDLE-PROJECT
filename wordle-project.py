@@ -69,7 +69,11 @@ while(True):
     print("4. Quit")
     print("="*50)
     
-    menu = int(input("Enter Choice:"))
+    menu_raw = input("Enter Choice:").strip()
+    if not menu_raw.isdigit():
+        print("😑 Enter a valid option")
+        continue
+    menu = int(menu_raw)
     
     # Start Game
     if(menu == 1):
@@ -77,20 +81,31 @@ while(True):
         answer = random.choice(WORDS)
         while(guess<=MAX_GUESSES):
             guess_word=""
-            fb = []
             while(True):
                 guess_word = (input(f"Attempt {guess} out of {MAX_GUESSES}: ").strip()).lower()
                 if(len(guess_word)==5 and guess_word.isalpha()):
                     guess += 1
                     break
-            for letter in guess_word:
-                if letter in answer:
-                    fb.append("🟨")
-                else:
-                    fb.append("⬛️")
-            for guess_letter, ans_letter in zip(guess_word, answer):
+                print("Please enter exactly 5 alphabetic letters.")
+
+            fb = ["⬛️"] * len(answer)
+            remaining_letters = {}
+
+            # First pass: exact matches, then count unmatched answer letters.
+            for i, (guess_letter, ans_letter) in enumerate(zip(guess_word, answer)):
                 if guess_letter == ans_letter:
-                    fb[answer.index(ans_letter)] = "🟩"
+                    fb[i] = "🟩"
+                else:
+                    remaining_letters[ans_letter] = remaining_letters.get(ans_letter, 0) + 1
+
+            # Second pass: misplaced matches only if count remains.
+            for i, guess_letter in enumerate(guess_word):
+                if fb[i] == "🟩":
+                    continue
+                if remaining_letters.get(guess_letter, 0) > 0:
+                    fb[i] = "🟨"
+                    remaining_letters[guess_letter] -= 1
+
             # printing feedback of every letter in the guess_word
             for fb_letter,guess_letter in zip(fb,guess_word):
                 print(fb_letter+guess_letter, end =" ") 
@@ -103,7 +118,7 @@ while(True):
                 break  
         else:
             stats_dict["streak"] = 0
-            print("You lost") 
+            print(f"You lost. The correct answer was: {answer}") 
              
         stats_dict["played"] += 1
         
